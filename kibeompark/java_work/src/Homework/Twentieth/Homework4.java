@@ -18,13 +18,17 @@ class AccelThread implements Runnable {
         localSum = 0;
     }
 
+    public synchronized void calcSum() {
+        totalSum += localSum;
+    }
+
     @Override
     public void run() {
         for (int i = localStart; i <= localEnd; i++) {
             localSum += i * (Math.pow(10, -15) * i) * Math.sin(i * Math.PI / 180.0);
         }
 
-        totalSum += localSum;
+        calcSum();
 
         System.out.printf("threadId = %d, localStart = %9d, localEnd = %10d, " +
                         "localSum = %13f, totalSum = %13f\n",
@@ -33,9 +37,9 @@ class AccelThread implements Runnable {
 }
 
 public class Homework4 {
-    static int THREADNUM = 10;
+    static int THREADNUM = 5;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // 4. 1 ~ 10억 번의 루프를 돈다.
         //    위의 숫자는 표기상 n0 ... n1000000000 으로 표기하도록 한다.
         //    아래 코드를 for 문으로 돌리고 thread를 활용하여 성능을 개선해 보자 !
@@ -69,12 +73,9 @@ public class Homework4 {
 
         // 검색 결과 join() 은 스레드가 종료되기를 기다리는 메서드
         // 괄호 안에 0을 넣으면 무한정 기다림
-        try {
-            for (int i = 0; i < THREADNUM; i++) {
-                t[i].join(0);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+        for (int i = 0; i < THREADNUM; i++) {
+            t[i].join();
         }
 
         PerformanceUtil.performanceCheckEnd();

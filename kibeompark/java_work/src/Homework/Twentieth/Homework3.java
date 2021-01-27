@@ -19,13 +19,17 @@ class ThreadTest implements Runnable {
         localSum = 0;
     }
 
+    public synchronized void calcSum() {
+        totalSum += localSum;
+    }
+
     @Override
     public void run() {
         for (int i = localStart; i <= localEnd; i++) {
             localSum += i * (0.0001 * i);
         }
 
-        totalSum += localSum;
+        calcSum();
 
         System.out.printf("threadId = %d, localStart = %6d, localEnd = %7d, " +
                         "localSum = %f, totalSum = %f\n",
@@ -40,7 +44,7 @@ class ThreadTest implements Runnable {
 public class Homework3 {
     final static int THREADNUM = 5;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // 3. 1 ~ 1000000 까지의 숫자에 아래 연산을 고속으로 적용해보도록 한다.
         //    1 ~ 1000000 의 숫자는 표기상 n0 ... n1000000 으로 표기하겠다.
         //    nX * 0.0001 + n(X + 1) * 0.0002 + n(X + 2) * 0.0003 .....
@@ -63,12 +67,9 @@ public class Homework3 {
 
         // 검색 결과 join() 은 스레드가 종료되기를 기다리는 메서드
         // 괄호 안에 0을 넣으면 무한정 기다림
-        try {
-            for (int i = 0; i < THREADNUM; i++) {
-                t[i].join(0);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+        for (int i = 0; i < THREADNUM; i++) {
+            t[i].join();
         }
 
         PerformanceUtil.performanceCheckEnd();
